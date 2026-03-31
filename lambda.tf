@@ -305,3 +305,21 @@ resource "aws_lambda_function" "delete_course" {
   source_code_hash = data.archive_file.delete_course.output_base64sha256
   environment { variables = { TABLE_NAME = module.dynamodb_courses.table_name } }
 }
+
+# Дозвіл для API Gateway викликати наші функції
+
+resource "aws_lambda_permission" "apigw" {
+  for_each = toset([
+    aws_lambda_function.get_all_authors.function_name,
+    aws_lambda_function.get_all_courses.function_name,
+    aws_lambda_function.get_course.function_name,
+    aws_lambda_function.save_course.function_name,
+    aws_lambda_function.update_course.function_name,
+    aws_lambda_function.delete_course.function_name
+  ])
+
+  statement_id  = "AllowAPIGatewayInvoke-${each.value}"
+  action        = "lambda:InvokeFunction"
+  function_name = each.value
+  principal     = "apigateway.amazonaws.com"
+}
