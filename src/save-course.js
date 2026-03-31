@@ -1,11 +1,25 @@
 const AWS = require("aws-sdk");
 const dynamodb = new AWS.DynamoDB.DocumentClient({ region: process.env.AWS_REGION });
 
+const replaceAll = (str, find, replace) => {
+  return str.replace(new RegExp(find, 'g'), replace);
+};
+
 exports.handler = (event, context, callback) => {
-  const item = typeof event.body === 'string' ? JSON.parse(event.body) : event;
+  const body = typeof event.body === 'string' ? JSON.parse(event.body) : event;
+  
+  const generatedId = replaceAll(body.title, " ", "-").toLowerCase();
+
   const params = {
     TableName: process.env.TABLE_NAME,
-    Item: item
+    Item: {
+      id: generatedId,
+      title: body.title,
+      watchHref: `http://www.pluralsight.com/courses/${generatedId}`,
+      authorId: body.authorId,
+      length: body.length,
+      category: body.category
+    }
   };
   
   dynamodb.put(params, (err, data) => {
@@ -13,7 +27,7 @@ exports.handler = (event, context, callback) => {
       console.log(err);
       callback(err);
     } else {
-      callback(null, { message: "Course saved successfully" });
+      callback(null, params.Item);
     }
   });
 };

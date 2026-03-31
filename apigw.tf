@@ -27,14 +27,14 @@ resource "aws_api_gateway_resource" "course_id" {
   parent_id   = aws_api_gateway_resource.courses.id
   path_part   = "{id}"
 }
-
 locals {
   methods = {
     "get_authors"   = { res_id = aws_api_gateway_resource.authors.id,   method = "GET",    lambda = aws_lambda_function.get_all_authors.invoke_arn, template = null }
     "get_courses"   = { res_id = aws_api_gateway_resource.courses.id,   method = "GET",    lambda = aws_lambda_function.get_all_courses.invoke_arn, template = null }
     "post_courses"  = { res_id = aws_api_gateway_resource.courses.id,   method = "POST",   lambda = aws_lambda_function.save_course.invoke_arn,     template = null }
-    "get_course"    = { res_id = aws_api_gateway_resource.course_id.id, method = "GET",    lambda = aws_lambda_function.get_course.invoke_arn,      template = null }
-    "delete_course" = { res_id = aws_api_gateway_resource.course_id.id, method = "DELETE", lambda = aws_lambda_function.delete_course.invoke_arn,   template = null }
+    
+    "get_course"    = { res_id = aws_api_gateway_resource.course_id.id, method = "GET",    lambda = aws_lambda_function.get_course.invoke_arn,      template = "{\n  \"id\": \"$input.params('id')\"\n}" }
+    "delete_course" = { res_id = aws_api_gateway_resource.course_id.id, method = "DELETE", lambda = aws_lambda_function.delete_course.invoke_arn,   template = "{\n  \"id\": \"$input.params('id')\"\n}" }
     
     "put_course" = {
       res_id   = aws_api_gateway_resource.course_id.id
@@ -59,7 +59,6 @@ EOF
     "course_id" = aws_api_gateway_resource.course_id.id
   }
 }
-
 resource "aws_api_gateway_method" "method" {
   for_each      = local.methods
   rest_api_id   = aws_api_gateway_rest_api.this.id
