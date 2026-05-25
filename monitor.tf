@@ -24,7 +24,7 @@ resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
   period              = "60"
   statistic           = "Sum"
   threshold           = "0"
-  alarm_description   = "Сповіщення, якщо Лямбда save-course видає помилку"
+  alarm_description   = "lambda error"
 
   alarm_actions       = [aws_sns_topic.alerts_eu.arn]
 
@@ -57,7 +57,7 @@ resource "aws_cloudwatch_metric_alarm" "billing" {
   period              = "21600"
   statistic           = "Maximum"
   threshold           = "10.0"
-  alarm_description   = "Сповіщення, якщо витрати AWS перевищать $10"
+  alarm_description   = "bill is under 10$ error"
 
   alarm_actions       = [aws_sns_topic.alerts_us.arn]
 

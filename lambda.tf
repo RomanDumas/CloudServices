@@ -306,7 +306,6 @@ resource "aws_lambda_function" "delete_course" {
   environment { variables = { TABLE_NAME = module.dynamodb_courses.table_name } }
 }
 
-# Дозвіл для API Gateway викликати наші функції
 
 resource "aws_lambda_permission" "apigw" {
   for_each = toset([
